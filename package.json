@@ -5,5 +5,11 @@
   "main": "index.js",
   "repository": "git@github.com:th-sakib/PurchezTech-server.git",
   "author": "TH Sakib",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  }
 }
