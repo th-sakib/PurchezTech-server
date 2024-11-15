@@ -28,6 +28,10 @@ const userSchema = new Schema(
       type: String,
       required: [true, "password is required"],
     },
+    role: {
+      type: String,
+      default: "user",
+    },
     refreshToken: {
       type: String,
     },
