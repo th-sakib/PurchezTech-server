@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefershToken = async (userId) => {
   try {
@@ -145,9 +146,62 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-const adminLogin = asyncHandler(async (req, res) => {});
-
 const logoutUser = asyncHandler(async (req, res) => {});
+
+const refreshyAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "Unauthorized request: Refresh token missing");
+  }
+
+  try {
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token: User not found");
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+      throw new ApiError(
+        401,
+        "Invalid refresh token: Token mismatch or expired"
+      );
+    }
+
+    const { accessToken, newRefreshToken } = generateAccessAndRefershToken(
+      user?._id
+    );
+
+    const options = {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "Strict",
+    };
+
+    res
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken: newRefreshToken },
+          "Access token refreshed successfully"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(401, "Invalid refresh token: Verification failed");
+  }
+});
+
+const adminLogin = asyncHandler(async (req, res) => {});
 
 const getCurrentUser = asyncHandler(async (req, res) => {
   res.send("imauser ");
@@ -160,10 +214,11 @@ const updateUserAvater = asyncHandler(async (req, res) => {});
 const updateUserCoverPhoto = asyncHandler(async (req, res) => {});
 
 export {
-  loginUser,
   registerUser,
-  adminLogin,
+  loginUser,
+  refreshyAccessToken,
   logoutUser,
+  adminLogin,
   getCurrentUser,
   updateUser,
   updateUserAvater,
