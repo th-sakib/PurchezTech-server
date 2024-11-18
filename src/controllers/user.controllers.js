@@ -146,7 +146,31 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-const logoutUser = asyncHandler(async (req, res) => {});
+const logoutUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        refreshToken: 1,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+
+  const options = {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    sameSite: "Strict",
+  };
+
+  res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
+});
 
 const refreshyAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
@@ -201,26 +225,80 @@ const refreshyAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-const adminLogin = asyncHandler(async (req, res) => {});
-
 const getCurrentUser = asyncHandler(async (req, res) => {
-  res.send("imauser ");
+  const user = {
+    _id: req.user._id,
+    username: req.user.username,
+    email: req.user.email,
+    fullName: req.user.fullName,
+    role: req.user.role,
+  }; // req.user is coming from the auth middleware
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, user, "User info fetched successfully"));
 });
 
-const updateUser = asyncHandler(async (req, res) => {});
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
 
-const updateUserAvater = asyncHandler(async (req, res) => {});
+  const user = await User.findById(req.user?._id).select("-refreshToken");
 
-const updateUserCoverPhoto = asyncHandler(async (req, res) => {});
+  if (!user) {
+    throw new ApiError(400, "User not found: while changing password");
+  }
+
+  const isPassCorrect = await user.isPassCorrect(oldPassword);
+
+  if (!isPassCorrect) {
+    throw new ApiError(400, "Invalid old password");
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(200).json(new ApiResponse(200, "Password changed successfully"));
+});
+
+const updateUserAccount = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+
+  if (!fullName || !email) {
+    throw new ApiError(400, "All fields are required");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        fullName,
+        email,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, user, "Account details updated successfully"));
+});
+
+const updateUserAvater = asyncHandler(async (req, res) => {
+  //TODO: implement file storing mechanism
+});
+
+const updateUserCoverPhoto = asyncHandler(async (req, res) => {
+  //TODO: implement file storing mechanism
+});
 
 export {
   registerUser,
   loginUser,
   refreshyAccessToken,
   logoutUser,
-  adminLogin,
   getCurrentUser,
-  updateUser,
+  changeCurrentPassword,
+  updateUserAccount,
   updateUserAvater,
   updateUserCoverPhoto,
 };
