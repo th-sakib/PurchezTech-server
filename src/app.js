@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { globalError } from "./middlewares/error.middleware.js";
+import { globalError, notFound } from "./middlewares/error.middleware.js";
 
 const app = express();
 
@@ -24,6 +24,7 @@ import userRouter from "./routes/user.route.js";
 app.use("/api/v1/user", userRouter);
 
 // global error handler middleware
+app.use(notFound);
 app.use(globalError);
 
 export { app };
