@@ -8,12 +8,14 @@ import {
   updateUserAccount,
 } from "../controllers/user.controllers.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
+import validate from "../middlewares/validate.middleware.js";
+import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
 const router = Router();
 
 // routes (not secured)
-router.post("/login", loginUser);
-router.post("/register", registerUser);
+router.post("/login", validate(loginSchema), loginUser);
+router.post("/register", validate(registerSchema), registerUser);
 
 // secured routes
 router.post("/logout", verifyJWT, logoutUser);

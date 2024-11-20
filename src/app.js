@@ -23,7 +23,7 @@ import userRouter from "./routes/user.route.js";
 // routes;
 app.use("/api/v1/user", userRouter);
 
-// global error handler middleware
+// error handling middleware
 app.use(notFound);
 app.use(globalError);
 

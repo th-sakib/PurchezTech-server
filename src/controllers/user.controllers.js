@@ -1,4 +1,3 @@
-import validator from "validator";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
@@ -47,19 +46,6 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "pass is required");
   }
 
-  // alternative of checking
-
-  // if (
-  //   [username, email, fullName, password].some((field) => field?.trim() === "")
-  // ) {
-  //   throw new ApiError(400, "All fields are required.");
-  // }
-
-  // validating the email
-  if (!validator.isEmail(email)) {
-    throw new ApiError(400, "Invalid email address");
-  }
-
   //check if username or email already exists
   const existedUser = await User.findOne({
     $or: [{ email }, { username }],
@@ -91,9 +77,9 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { username, email, password } = req.body;
+  const { usernameOREmail, password } = req.body;
 
-  if (!username && !email) {
+  if (!usernameOREmail) {
     throw new ApiError(400, "username or email required!");
   }
 
@@ -103,24 +89,24 @@ const loginUser = asyncHandler(async (req, res) => {
 
   // find the user in db
   const user = await User.findOne({
-    $or: [{ username }, { email }],
+    $or: [{ username: usernameOREmail }, { email: usernameOREmail }],
   });
 
   if (!user) {
     throw new ApiError(404, "User not exists");
   }
 
-  const isPasswordValid = await user.isPassCorrect(password);
+  const isPasswordValid = await user?.isPassCorrect(password);
 
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid user credentials");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefershToken(
-    user._id
+    user?._id
   );
 
-  const loggedInUser = await User.findById(user._id).select(
+  const loggedInUser = await User.findById(user?._id).select(
     "-password -refreshToken"
   );
 
