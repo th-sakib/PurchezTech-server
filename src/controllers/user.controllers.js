@@ -158,7 +158,7 @@ const logoutUser = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
-const refreshyAccessToken = asyncHandler(async (req, res) => {
+const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken || req.body.refreshToken;
 
@@ -172,11 +172,13 @@ const refreshyAccessToken = asyncHandler(async (req, res) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    const user = await User.findById(decodedToken?._id);
+    const user = await User.findById(decodedToken?._id).select("-password");
 
     if (!user) {
       throw new ApiError(401, "Invalid refresh token: User not found");
     }
+
+    // console.log(user);
 
     if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(
@@ -185,9 +187,17 @@ const refreshyAccessToken = asyncHandler(async (req, res) => {
       );
     }
 
-    const { accessToken, newRefreshToken } = generateAccessAndRefershToken(
-      user?._id
-    );
+    const userInfo = {
+      _id: user?._id,
+      email: user?.email,
+      username: user?.username,
+      fullName: user?.fullName,
+      role: user?.role,
+    };
+    // console.log(userInfo);
+
+    const { accessToken, refreshToken: newRefreshToken } =
+      await generateAccessAndRefershToken(user?._id);
 
     const options = {
       secure: process.env.NODE_ENV === "production",
@@ -202,7 +212,7 @@ const refreshyAccessToken = asyncHandler(async (req, res) => {
       .json(
         new ApiResponse(
           200,
-          { accessToken, refreshToken: newRefreshToken },
+          { accessToken, refreshToken: newRefreshToken, userInfo },
           "Access token refreshed successfully"
         )
       );
@@ -280,7 +290,7 @@ const updateUserCoverPhoto = asyncHandler(async (req, res) => {
 export {
   registerUser,
   loginUser,
-  refreshyAccessToken,
+  refreshAccessToken,
   logoutUser,
   getCurrentUser,
   changeCurrentPassword,
