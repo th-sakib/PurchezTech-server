@@ -20,8 +20,14 @@ app.use(cookieParser());
 // import routes
 import userRouter from "./routes/user.route.js";
 
+// import admin routes
+import productRouter from "./routes/admin/product.route.js";
+
 // routes;
 app.use("/api/v1/user", userRouter);
+
+// admin routes
+app.use("/api/v1/admin/", productRouter);
 
 // error handling middleware
 app.use(notFound);
