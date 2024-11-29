@@ -4,7 +4,7 @@ import User from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
-const generateAccessAndRefershToken = async (userId) => {
+const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
 
@@ -56,12 +56,14 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   // create new user to database
-  const user = await User.create({
+  const user = new User({
     fullName,
     email,
     password,
     username,
   });
+
+  await user.save();
 
   const createdUser = await User.findById(user._id).select(
     "-password -refreshToken"
@@ -102,7 +104,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
 
-  const { accessToken, refreshToken } = await generateAccessAndRefershToken(
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
     user?._id
   );
 
@@ -197,7 +199,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     // console.log(userInfo);
 
     const { accessToken, refreshToken: newRefreshToken } =
-      await generateAccessAndRefershToken(user?._id);
+      await generateAccessAndRefreshToken(user?._id);
 
     const options = {
       secure: process.env.NODE_ENV === "production",
@@ -279,7 +281,16 @@ const updateUserAccount = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user, "Account details updated successfully"));
 });
 
-const updateUserAvater = asyncHandler(async (req, res) => {
+const authenticityCheck = asyncHandler(async (req, res) => {
+  const isUser = Boolean(req.user);
+  if (!isUser) {
+    throw new ApiError(401, "Unauthenticated");
+  }
+
+  res.status(200).json(new ApiResponse(200, "Authenticated"));
+});
+
+const updateUserAvatar = asyncHandler(async (req, res) => {
   //TODO: implement file storing mechanism
 });
 
@@ -295,6 +306,7 @@ export {
   getCurrentUser,
   changeCurrentPassword,
   updateUserAccount,
-  updateUserAvater,
+  updateUserAvatar,
   updateUserCoverPhoto,
+  authenticityCheck,
 };
