@@ -20,7 +20,7 @@ router.post(
 );
 
 router.post("/create-product", verifyJWT, createProduct);
-router.post("/update-product/:id", verifyJWT, updateProduct);
+router.put("/update-product/:id", verifyJWT, updateProduct);
 router.post("/delete-product/:id", verifyJWT, deleteProduct);
 
 router.get("/get-product", verifyJWT, getAllProduct);

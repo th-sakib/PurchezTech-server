@@ -14,7 +14,7 @@ const uploadProduct = asyncHandler(async (req, res) => {
 
   res
     .status(201)
-    .json(new ApiResponse(201, { result }, "Image uploaded successfully"));
+    .json(new ApiResponse(201, result, "Image uploaded successfully"));
 });
 
 // create product
@@ -32,17 +32,26 @@ const createProduct = asyncHandler(async (req, res) => {
 
   // console.log(req.body);
 
-  if (
-    !title ||
-    !description ||
-    !category ||
-    !brand ||
-    !price ||
-    !salePrice ||
-    !totalStock ||
-    !imageURL
-  ) {
-    throw new ApiError(400, "Missing required product fields");
+  if (!title) {
+    throw new ApiError(400, "Title is required");
+  }
+  if (!description) {
+    throw new ApiError(400, "Description is required");
+  }
+  if (!category) {
+    throw new ApiError(400, "category is required");
+  }
+  if (!brand) {
+    throw new ApiError(400, "brand is required");
+  }
+  if (!price) {
+    throw new ApiError(400, "price is required");
+  }
+  if (!salePrice) {
+    throw new ApiError(400, "salePrice is required");
+  }
+  if (!imageURL) {
+    throw new ApiError(400, "imageURL is required");
   }
 
   const newlyCreatedProduct = new Product({

@@ -15,12 +15,12 @@ const uploadOnCloudinary = async (file) => {
     const res = await cloudinary.uploader.upload(file, {
       resource_type: "auto",
       folder: "purchezTech/products",
+      allowed_formats: ["jpg", "jpeg", "png"],
     });
 
     return res;
   } catch (error) {
     throw new ApiError(501, "Uploading in cloudinary problem", [error]);
-    return null;
   }
 };
 
