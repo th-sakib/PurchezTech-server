@@ -3,6 +3,13 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import User from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  "postmessage"
+);
 
 const generateAccessAndRefreshToken = async (userId) => {
   try {
@@ -12,7 +19,7 @@ const generateAccessAndRefreshToken = async (userId) => {
       throw new ApiError(404, "user not found while generating access token");
     }
 
-    // generate access and refersh token
+    // generate access and refresh token
     const accessToken = user.generateAccessToken();
     const refreshToken = user.generateRefreshToken();
 
@@ -123,14 +130,74 @@ const loginUser = asyncHandler(async (req, res) => {
     .cookie("accessToken", accessToken, options)
     .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(
-        200,
-        {
-          loggedInUser,
-          accessToken,
-        },
-        "User logged in successfully"
-      )
+      new ApiResponse(200, { loggedInUser }, "User logged in successfully")
+    );
+});
+
+const googleLogin = asyncHandler(async (req, res) => {
+  const { code } = req.body; // the authorization code
+
+  if (!code) {
+    throw new ApiError(400, "Authorization code is missing");
+  }
+
+  const { tokens } = await googleClient.getToken(code);
+
+  if (!tokens) {
+    throw new ApiError(500, "Failed to exchange code to get tokens");
+  }
+
+  const idToken = tokens.id_token;
+
+  const ticket = await googleClient.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+  });
+
+  if (!ticket) {
+    throw new ApiError(500, "Token verification failed");
+  }
+
+  const payload = ticket.getPayload();
+
+  const { picture: avatar, name: fullName, sub: googleId, email } = payload;
+
+  let user = await User.findOne({ googleId });
+  if (!user) {
+    user = await User.create({
+      fullName,
+      googleId,
+      avatar,
+      email,
+      username: email.split("@")[0],
+      password: "ggl",
+    });
+  }
+
+  const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+    user?._id
+  );
+
+  user.refreshToken = refreshToken;
+
+  await user.save();
+
+  const googleLoggedUser = await User.findById(user._id).select(
+    "-password -refreshToken"
+  );
+
+  const options = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Secure only in production
+    sameSite: "Strict", // CSRF protection
+  };
+
+  res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(
+      new ApiResponse(200, { googleLoggedUser }, "Google Login successful")
     );
 });
 
@@ -301,6 +368,7 @@ const updateUserCoverPhoto = asyncHandler(async (req, res) => {
 export {
   registerUser,
   loginUser,
+  googleLogin,
   refreshAccessToken,
   logoutUser,
   getCurrentUser,

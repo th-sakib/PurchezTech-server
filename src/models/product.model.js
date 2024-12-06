@@ -40,7 +40,10 @@ const productSchema = new Schema(
     imageURL: {
       type: String,
       required: [true, "Product image is must be provided"],
-      trim: true,
+    },
+    publicID: {
+      type: String,
+      required: [true, "Public Id is required"],
     },
   },
   { timestamps: true }

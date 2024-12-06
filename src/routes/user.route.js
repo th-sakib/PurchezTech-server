@@ -3,6 +3,7 @@ import {
   authenticityCheck,
   changeCurrentPassword,
   getCurrentUser,
+  googleLogin,
   loginUser,
   logoutUser,
   refreshAccessToken,
@@ -15,9 +16,14 @@ import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
 const router = Router();
 
+router.get("/get", (req, res) => {
+  res.send("hehehe");
+});
+
 // routes (not secured)
 router.post("/login", validate(loginSchema), loginUser);
 router.post("/register", validate(registerSchema), registerUser);
+router.post("/google-login", googleLogin);
 
 // secured routes
 router.get("/authenticity", verifyJWT, authenticityCheck);

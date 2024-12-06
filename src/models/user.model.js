@@ -4,6 +4,14 @@ import jwt from "jsonwebtoken";
 
 const userSchema = new Schema(
   {
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, // allows null value
+    },
+    avatar: {
+      type: String,
+    },
     username: {
       type: String,
       required: true,
@@ -26,7 +34,9 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, "password is required"],
+      required: function () {
+        return !this.googleId; // if googleId exists it become false otherwise reverse the logic
+      },
     },
     role: {
       type: String,
@@ -43,13 +53,13 @@ const userSchema = new Schema(
 
 // hashing pass before saving to db
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.password === "ggl" || !this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// checking password validation by comapring
+// checking password validation by comparing
 userSchema.methods.isPassCorrect = async function (enteredPass) {
   return await bcrypt.compare(enteredPass, this.password);
 };

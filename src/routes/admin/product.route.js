@@ -3,6 +3,7 @@ import { verifyJWT } from "../../middlewares/auth.middleware.js";
 import { upload } from "../../middlewares/multer.middleware.js";
 import {
   createProduct,
+  deleteCloudProduct,
   deleteProduct,
   getAllProduct,
   updateProduct,
@@ -21,7 +22,8 @@ router.post(
 
 router.post("/create-product", verifyJWT, createProduct);
 router.put("/update-product/:id", verifyJWT, updateProduct);
-router.post("/delete-product/:id", verifyJWT, deleteProduct);
+router.delete("/delete-product/:id", verifyJWT, deleteProduct);
+router.delete("/delete-cloud-product", verifyJWT, deleteCloudProduct);
 
 router.get("/get-product", verifyJWT, getAllProduct);
 

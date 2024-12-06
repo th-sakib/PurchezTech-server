@@ -2,8 +2,10 @@ import Product from "../../models/product.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import uploadOnCloudinary from "../../utils/cloudinary.js";
-
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../../utils/cloudinary.js";
 // upload product functionality
 const uploadProduct = asyncHandler(async (req, res) => {
   // converting buffer to base 64
@@ -17,6 +19,21 @@ const uploadProduct = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, result, "Image uploaded successfully"));
 });
 
+// delete from cloudinary
+const deleteCloudProduct = asyncHandler(async (req, res) => {
+  const { publicID } = req.body;
+
+  if (!publicID) {
+    throw new ApiError(400, "Product Id is required to perform delete");
+  }
+
+  const result = await deleteFromCloudinary(publicID);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Product is deleted from cloud"));
+});
+
 // create product
 const createProduct = asyncHandler(async (req, res) => {
   const {
@@ -28,6 +45,7 @@ const createProduct = asyncHandler(async (req, res) => {
     salePrice,
     totalStock,
     imageURL,
+    publicID,
   } = req.body;
 
   // console.log(req.body);
@@ -53,6 +71,9 @@ const createProduct = asyncHandler(async (req, res) => {
   if (!imageURL) {
     throw new ApiError(400, "imageURL is required");
   }
+  if (!publicID) {
+    throw new ApiError(400, "Public id is required");
+  }
 
   const newlyCreatedProduct = new Product({
     title,
@@ -63,6 +84,7 @@ const createProduct = asyncHandler(async (req, res) => {
     salePrice,
     totalStock,
     imageURL,
+    publicID,
   });
 
   if (!newlyCreatedProduct) {
@@ -145,4 +167,5 @@ export {
   getAllProduct,
   updateProduct,
   deleteProduct,
+  deleteCloudProduct,
 };
