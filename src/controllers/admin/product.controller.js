@@ -6,33 +6,6 @@ import {
   deleteFromCloudinary,
   uploadOnCloudinary,
 } from "../../utils/cloudinary.js";
-// upload product functionality
-const uploadProduct = asyncHandler(async (req, res) => {
-  // converting buffer to base 64
-  const b64 = Buffer.from(req.file.buffer).toString("base64");
-  const url = "data:" + req.file.mimetype + ";base64," + b64;
-
-  const result = await uploadOnCloudinary(url);
-
-  res
-    .status(201)
-    .json(new ApiResponse(201, result, "Image uploaded successfully"));
-});
-
-// delete from cloudinary
-const deleteCloudProduct = asyncHandler(async (req, res) => {
-  const { publicID } = req.body;
-
-  if (!publicID) {
-    throw new ApiError(400, "Product Id is required to perform delete");
-  }
-
-  const result = await deleteFromCloudinary(publicID);
-
-  res
-    .status(200)
-    .json(new ApiResponse(200, result, "Product is deleted from cloud"));
-});
 
 // create product
 const createProduct = asyncHandler(async (req, res) => {
@@ -100,6 +73,34 @@ const createProduct = asyncHandler(async (req, res) => {
     );
 });
 
+// upload product functionality
+const uploadProduct = asyncHandler(async (req, res) => {
+  // converting buffer to base 64
+  const b64 = Buffer.from(req.file.buffer).toString("base64");
+  const url = "data:" + req.file.mimetype + ";base64," + b64;
+
+  const result = await uploadOnCloudinary(url);
+
+  res
+    .status(201)
+    .json(new ApiResponse(201, result, "Image uploaded successfully"));
+});
+
+// delete from cloudinary
+const deleteCloudProduct = asyncHandler(async (req, res) => {
+  const { publicID } = req.body;
+
+  if (!publicID) {
+    throw new ApiError(400, "Product Id is required to perform delete");
+  }
+
+  const result = await deleteFromCloudinary(publicID);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Product is deleted from cloud"));
+});
+
 // fetch product
 const getAllProduct = asyncHandler(async (req, res) => {
   const listOfProduct = await Product.find({});
@@ -116,16 +117,12 @@ const getAllProduct = asyncHandler(async (req, res) => {
 // edit product
 const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const {
-    title,
-    description,
-    category,
-    brand,
-    price,
-    salePrice,
-    totalStock,
-    productImage,
-  } = req.body;
+  const { title, description, category, brand, price, salePrice, totalStock } =
+    req.body;
+
+  if (!req.body) {
+    throw new ApiError(400, "All field is required");
+  }
 
   const product = await Product.findById(id);
 
@@ -140,7 +137,6 @@ const updateProduct = asyncHandler(async (req, res) => {
   product.price = price || product.price;
   product.salePrice = salePrice || product.salePrice;
   product.totalStock = totalStock || product.totalStock;
-  product.productImage = productImage || product.productImage;
 
   await product.save();
 

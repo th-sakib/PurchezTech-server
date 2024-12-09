@@ -15,7 +15,7 @@ const uploadOnCloudinary = async (file) => {
     const res = await cloudinary.uploader.upload(file, {
       resource_type: "auto",
       folder: "purchezTech/products",
-      allowed_formats: ["jpg", "jpeg", "png"],
+      allowed_formats: ["jpg", "jpeg", "png", "webp"],
     });
 
     return res;

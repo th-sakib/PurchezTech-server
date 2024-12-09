@@ -10,7 +10,7 @@ const registerSchema = z.object({
     .string({ required_error: "Username is required" })
     .trim()
     .min(4, { message: "Username must be at least of 4 character" })
-    .max(10, { message: "Username can't be more than 10 character" })
+    .max(20, { message: "Username can't be more than 20 character" })
     .regex(/^[a-z0-9]+$/, {
       message:
         "Username must not contain uppercase letters or special characters",
@@ -42,7 +42,7 @@ const loginSchema = z.object({
     .refine(
       (value) => {
         const usernameRegex =
-          /^(?!.*[\.\-\_]{2})(?=[a-z0-9])[a-z0-9._-]{4,10}(?<![\.\-\_])$/;
+          /^(?!.*[\.\-\_]{2})(?=[a-z0-9])[a-z0-9._-]{4,20}(?<![\.\-\_])$/;
         const emailRegex =
           /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+([a-z0-9](?:[a-z0-9-]*[a-z0-9])?)*$/;
 
