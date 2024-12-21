@@ -25,6 +25,6 @@ router.put("/update-product/:id", verifyJWT, updateProduct);
 router.delete("/delete-product/:id", verifyJWT, deleteProduct);
 router.delete("/delete-cloud-product", verifyJWT, deleteCloudProduct);
 
-router.get("/get-product", verifyJWT, getAllProduct);
+router.get("/get-product", getAllProduct);
 
 export default router;

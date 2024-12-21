@@ -103,7 +103,21 @@ const deleteCloudProduct = asyncHandler(async (req, res) => {
 
 // fetch product
 const getAllProduct = asyncHandler(async (req, res) => {
-  const listOfProduct = await Product.find({});
+  const { category, brand, sortByPrice, sortByDate } = req.query;
+
+  // filtering by category | brand
+  const query = {};
+  if (category) query.category = category;
+  if (brand) query.brand = brand;
+
+  // sorting by price | date
+  const sortBy = {};
+  if (sortByPrice === "asc") sortBy.salePrice = 1; // lowest first
+  if (sortByPrice === "desc") sortBy.salePrice = -1; // highest first
+  if (sortByDate === "asc") sortBy.createdAt = 1; // oldest first
+  if (sortByDate === "desc") sortBy.createdAt = -1; // newest first
+
+  const listOfProduct = await Product.find(query).sort(sortBy);
 
   if (!listOfProduct) {
     throw new ApiError(404, "Product not found");
