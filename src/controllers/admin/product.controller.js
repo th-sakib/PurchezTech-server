@@ -103,12 +103,32 @@ const deleteCloudProduct = asyncHandler(async (req, res) => {
 
 // fetch product
 const getAllProduct = asyncHandler(async (req, res) => {
-  const { category, brand, sortByPrice, sortByDate } = req.query;
+  const {
+    category,
+    brand,
+    sortByPrice,
+    sortByDate,
+    search,
+    minPrice,
+    maxPrice,
+  } = req.query;
 
   // filtering by category | brand
   const query = {};
-  if (category) query.category = category;
-  if (brand) query.brand = brand;
+  if (category && category !== "default") query.category = category;
+  if (brand && category !== "default") query.brand = brand;
+  if (search) {
+    query.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  // filter by price range
+  if (minPrice)
+    query.salePrice = { ...query.salePrice, $gte: Number(minPrice) };
+  if (maxPrice)
+    query.salePrice = { ...query.salePrice, $lte: Number(maxPrice) };
 
   // sorting by price | date
   const sortBy = {};
@@ -116,6 +136,22 @@ const getAllProduct = asyncHandler(async (req, res) => {
   if (sortByPrice === "desc") sortBy.salePrice = -1; // highest first
   if (sortByDate === "asc") sortBy.createdAt = 1; // oldest first
   if (sortByDate === "desc") sortBy.createdAt = -1; // newest first
+
+  const categoryQueryForPriceRange = {};
+  if (category && category !== "default")
+    categoryQueryForPriceRange.category = category;
+
+  const priceAggregation = await Product.aggregate([
+    { $match: categoryQueryForPriceRange },
+    {
+      $group: {
+        _id: null,
+        initialMinPrice: { $min: "$salePrice" },
+        initialMaxPrice: { $max: "$salePrice" },
+      },
+    },
+  ]);
+  const priceRange = priceAggregation[0] || { minPrice: 0, maxPrice: 1000 };
 
   const listOfProduct = await Product.find(query).sort(sortBy);
 
@@ -125,7 +161,13 @@ const getAllProduct = asyncHandler(async (req, res) => {
 
   res
     .status(200)
-    .json(new ApiResponse(200, listOfProduct, "Product fetched successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { listOfProduct, priceRange },
+        "Product fetched successfully"
+      )
+    );
 });
 
 // edit product
