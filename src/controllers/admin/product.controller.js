@@ -111,6 +111,8 @@ const getAllProduct = asyncHandler(async (req, res) => {
     search,
     minPrice,
     maxPrice,
+    page = 1,
+    limit = 12,
   } = req.query;
 
   // filtering by category | brand
@@ -153,7 +155,15 @@ const getAllProduct = asyncHandler(async (req, res) => {
   ]);
   const priceRange = priceAggregation[0] || { minPrice: 0, maxPrice: 1000 };
 
-  const listOfProduct = await Product.find(query).sort(sortBy);
+  // pagination
+  const skip = (page - 1) * limit;
+
+  const listOfProduct = await Product.find(query)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(Number(limit));
+  const totalProducts = await Product.countDocuments(query);
+  const totalPages = Math.ceil(totalProducts / limit);
 
   if (!listOfProduct) {
     throw new ApiError(404, "Product not found");
@@ -164,10 +174,25 @@ const getAllProduct = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { listOfProduct, priceRange },
+        { listOfProduct, priceRange, totalProducts, totalPages },
         "Product fetched successfully"
       )
     );
+});
+
+// get product by id
+const getProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id) {
+    throw new ApiError(400, "Product id is required");
+  }
+
+  const product = await Product.findById(id);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, product, "Product fetched successfully"));
 });
 
 // edit product
@@ -216,6 +241,7 @@ const deleteProduct = asyncHandler(async (req, res) => {
 export {
   uploadProduct,
   createProduct,
+  getProduct,
   getAllProduct,
   updateProduct,
   deleteProduct,

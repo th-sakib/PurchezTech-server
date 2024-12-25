@@ -27,7 +27,10 @@ import userRouter from "./routes/user.route.js";
 
 // import admin routes
 import productRouter from "./routes/admin/product.route.js";
-import { getAllProduct } from "./controllers/admin/product.controller.js";
+import {
+  getAllProduct,
+  getProduct,
+} from "./controllers/admin/product.controller.js";
 
 // routes;
 app.use("/api/v1/user", userRouter);
@@ -35,8 +38,9 @@ app.use("/api/v1/user", userRouter);
 // admin routes
 app.use("/api/v1/admin/", productRouter);
 
-// for getting all product
-app.use("/api/v1/get-product", getAllProduct);
+// for getting all product - logged out user
+app.use("/api/v1/get-products", getAllProduct);
+app.use("/api/v1/get-product/:id", getProduct);
 
 // error handling middleware
 app.use(notFound);
