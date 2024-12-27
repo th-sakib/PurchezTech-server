@@ -3,6 +3,11 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import { globalError, notFound } from "./middlewares/error.middleware.js";
 
+import {
+  getAllProduct,
+  getProduct,
+} from "./controllers/admin/product.controller.js";
+
 const app = express();
 
 app.use(
@@ -23,20 +28,20 @@ app.use((req, res, next) => {
 });
 
 // import routes
-import userRouter from "./routes/user.route.js";
+import userRouter from "./routes/user.routes.js";
+import cartRouter from "./routes/shop/cart.routes.js";
 
 // import admin routes
-import productRouter from "./routes/admin/product.route.js";
-import {
-  getAllProduct,
-  getProduct,
-} from "./controllers/admin/product.controller.js";
+import productRouter from "./routes/admin/product.routes.js";
 
 // routes;
 app.use("/api/v1/user", userRouter);
 
 // admin routes
 app.use("/api/v1/admin/", productRouter);
+
+// shop related routes
+app.use("/api/v1/shop/", cartRouter);
 
 // for getting all product - logged out user
 app.use("/api/v1/get-products", getAllProduct);

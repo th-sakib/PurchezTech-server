@@ -9,16 +9,12 @@ import {
   refreshAccessToken,
   registerUser,
   updateUserAccount,
-} from "../controllers/user.controllers.js";
+} from "../controllers/user.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 
 const router = Router();
-
-router.get("/get", (req, res) => {
-  res.send("hehehe");
-});
 
 // routes (not secured)
 router.post("/login", validate(loginSchema), loginUser);
