@@ -15,6 +15,11 @@ const addToCart = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Product not found");
   }
 
+  // checking the stock
+  if (quantity > product.totalStock) {
+    throw new ApiError(400, "Product is out of stock");
+  }
+
   let cart = await Cart.findOne({ userId });
   if (!cart) {
     cart = new Cart({ userId, items: [] });
@@ -28,7 +33,12 @@ const addToCart = asyncHandler(async (req, res) => {
   if (findCurrentProductIndex === -1) {
     cart.items.push({ productId, quantity });
   } else {
-    cart.items[findCurrentProductIndex].quantity += quantity;
+    const newQuantity = (cart.items[findCurrentProductIndex].quantity +=
+      quantity); // storing new updated quantity for checking available stock
+    if (newQuantity > product.totalStock) {
+      throw new ApiError(400, "Product is out of stock");
+    }
+    cart.items[findCurrentProductIndex].quantity = newQuantity; // saving the quantity in the cart
   }
 
   await cart.save();
@@ -45,7 +55,7 @@ const fetchCart = asyncHandler(async (req, res) => {
 
   const cart = await Cart.findOne({ userId }).populate({
     path: "items.productId",
-    select: "image title price salePrice",
+    select: "imageURL title price salePrice totalStock",
   });
 
   if (!cart) {
@@ -61,10 +71,11 @@ const fetchCart = asyncHandler(async (req, res) => {
 
   const populateCartItems = validItems.map((item) => ({
     productId: item.productId._id,
-    image: item.productId.image,
+    image: item.productId.imageURL,
     title: item.productId.title,
     price: item.productId.price,
     salePrice: item.productId.salePrice,
+    maxStock: item.productId.totalStock,
     quantity: item.quantity,
   }));
 
@@ -92,6 +103,15 @@ const updateCartItem = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Cart not found");
   }
 
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new ApiError(400, "Product not found");
+  }
+
+  if (quantity > product.totalStock) {
+    throw new ApiError(400, "Product is out of stock");
+  }
+
   const findCurrentProductIndex = cart.items.findIndex(
     (item) => item.productId.toString() === productId
   );
@@ -107,20 +127,21 @@ const updateCartItem = asyncHandler(async (req, res) => {
 
   await cart.populate({
     path: "items.productId",
-    select: "image title price salePrice",
+    select: "imageURL title price salePrice totalStock",
   });
 
   const populateCartItems = cart.items.map((item) => ({
     productId: item.productId ? item.productId._id : null,
-    image: item.productId ? item.productId.image : null,
+    image: item.productId ? item.productId.imageURL : null,
     price: item.productId ? item.productId.price : null,
     salePrice: item.productId ? item.productId.salePrice : null,
+    maxStock: item.productId ? item.productId.totalStock : null,
     quantity: item.quantity,
   }));
 
   res
     .status(200)
-    .json(new ApiResponse(200, { ...cart._doc, populateCartItems }));
+    .json(new ApiResponse(200, { ...cart._doc, items: populateCartItems }));
 });
 
 const deleteCartItem = asyncHandler(async (req, res) => {
@@ -132,7 +153,7 @@ const deleteCartItem = asyncHandler(async (req, res) => {
 
   const cart = await Cart.findOne({ userId }).populate({
     path: "items.productId",
-    select: "image title price salePrice",
+    select: "imageURL title price salePrice totalStock",
   });
 
   const findCurrentProductIndex = cart.items.findIndex(

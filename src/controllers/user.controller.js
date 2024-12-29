@@ -349,7 +349,7 @@ const updateUserAccount = asyncHandler(async (req, res) => {
 });
 
 const authenticityCheck = asyncHandler(async (req, res) => {
-  const isUser = Boolean(req.user);
+  const isUser = req.user;
   if (!isUser) {
     throw new ApiError(401, "Unauthenticated");
   }
