@@ -4,6 +4,10 @@ import User from "../models/user.model.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import {
+  deleteFromCloudinary,
+  uploadOnCloudinary,
+} from "../utils/cloudinary.js";
 
 const googleClient = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -247,8 +251,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Invalid refresh token: User not found");
     }
 
-    // console.log(user);
-
     if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(
         401,
@@ -263,7 +265,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       fullName: user?.fullName,
       role: user?.role,
     };
-    // console.log(userInfo);
 
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user?._id);
@@ -357,12 +358,54 @@ const authenticityCheck = asyncHandler(async (req, res) => {
   res.status(200).json(new ApiResponse(200, "Authenticated"));
 });
 
-const updateUserAvatar = asyncHandler(async (req, res) => {
+const uploadAvatar = asyncHandler(async (req, res) => {
   //TODO: implement file storing mechanism
-});
+  if (!req.file) {
+    throw new ApiError(404, "File not found!");
+  }
 
-const updateUserCoverPhoto = asyncHandler(async (req, res) => {
-  //TODO: implement file storing mechanism
+  const { publicId } = req.body;
+
+  const b64 = Buffer.from(req.file.buffer).toString("base64");
+  const url = "data:" + req.file.mimetype + ";base64," + b64;
+
+  const result = await uploadOnCloudinary(url, "purchezTech/profiles/avatars");
+
+  if (!result) {
+    throw new ApiError(400, "avatar uploading failed");
+  }
+
+  if (!req.user) {
+    throw new ApiError(400, "User is unauthenticated");
+  }
+
+  const userId = req.user._id;
+
+  let user = await User.findById(userId);
+
+  // delete from cloud if its stored in cloud already
+  if (user.avatarPublicId === null && publicId === "null") {
+    user.avatarPublicId = result.public_id;
+    user.avatar = result.secure_url;
+    await user.save();
+  } else if (publicId === user.avatarPublicId) {
+    user.avatar = result.secure_url;
+    user.avatarPublicId = result.public_id;
+    await deleteFromCloudinary(publicId);
+    await user.save();
+  } else {
+    throw new ApiError(400, "give valid publicId");
+  }
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { avatarUrl: user.avatar, avatarPublicId: result.public_id },
+        "Avatar uploaded successfully"
+      )
+    );
 });
 
 export {
@@ -374,7 +417,6 @@ export {
   getCurrentUser,
   changeCurrentPassword,
   updateUserAccount,
-  updateUserAvatar,
-  updateUserCoverPhoto,
+  uploadAvatar,
   authenticityCheck,
 };

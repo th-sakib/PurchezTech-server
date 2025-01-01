@@ -13,15 +13,3 @@ export const upload = multer({
   //   cb(null, true);
   // },
 });
-
-// middleware to of fields to handle avatar and coverImage
-export const avatarAndCoverImageFields = upload.fields([
-  {
-    name: "avatar",
-    maxCount: 1,
-  },
-  {
-    name: "coverImage",
-    maxCount: 1,
-  },
-]);
