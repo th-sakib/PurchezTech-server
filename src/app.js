@@ -31,6 +31,7 @@ app.use((req, res, next) => {
 import userRouter from "./routes/user.routes.js";
 import cartRouter from "./routes/shop/cart.routes.js";
 import wishlistRouter from "./routes/shop/wishlist.routes.js";
+import orderRouter from "./routes/shop/order.routes.js";
 
 // import admin routes
 import productRouter from "./routes/admin/product.routes.js";
@@ -44,6 +45,7 @@ app.use("/api/v1/admin/", productRouter);
 // shop related routes
 app.use("/api/v1/shop/", cartRouter);
 app.use("/api/v1/shop/", wishlistRouter);
+app.use("/api/v1/shop/", orderRouter);
 
 // for getting all product - logged out user
 app.use("/api/v1/get-products", getAllProduct);
