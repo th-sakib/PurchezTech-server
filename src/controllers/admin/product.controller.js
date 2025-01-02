@@ -21,8 +21,6 @@ const createProduct = asyncHandler(async (req, res) => {
     publicID,
   } = req.body;
 
-  // console.log(req.body);
-
   if (!title) {
     throw new ApiError(400, "Title is required");
   }

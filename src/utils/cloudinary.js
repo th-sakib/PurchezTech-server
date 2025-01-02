@@ -10,7 +10,6 @@ cloudinary.config({
 const uploadOnCloudinary = async (file, folder = "purchezTech") => {
   try {
     if (!file) return null;
-    // console.log(file);
 
     const res = await cloudinary.uploader.upload(file, {
       resource_type: "auto",

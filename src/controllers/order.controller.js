@@ -141,7 +141,6 @@ const fetchOrder = asyncHandler(async (req, res) => {
   }
 
   const order = await Order.find({ user: userId });
-  // console.log(order);
   if (!order) {
     throw new ApiError(404, "Order not found");
   }
@@ -153,7 +152,6 @@ const fetchOrder = asyncHandler(async (req, res) => {
 
 const fetchAllOrder = asyncHandler(async (req, res) => {
   const order = await Order.find();
-  // console.log(order);
   if (!order) {
     throw new ApiError(404, "Order not found");
   }
