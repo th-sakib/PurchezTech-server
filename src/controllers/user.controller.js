@@ -123,18 +123,23 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure only in production
-    sameSite: "Strict", // CSRF protection
-  };
+  // const options = {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production", // Secure only in production
+  //   sameSite: "Strict", // CSRF protection
+  //   maxAge: 24 * 60 * 60 * 1000, // 1 day
+  // };
 
   res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    // .cookie("accessToken", accessToken, options)
+    // .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, { loggedInUser }, "User logged in successfully")
+      new ApiResponse(
+        200,
+        { loggedInUser, accessToken, refreshToken },
+        "User logged in successfully"
+      )
     );
 });
 
@@ -190,18 +195,22 @@ const googleLogin = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure only in production
-    sameSite: "Strict", // CSRF protection
-  };
+  // const options = {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "production", // Secure only in production
+  //   sameSite: "Strict", // CSRF protection
+  // };
 
   res
     .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", refreshToken, options)
+    // .cookie("accessToken", accessToken, options)
+    // .cookie("refreshToken", refreshToken, options)
     .json(
-      new ApiResponse(200, { googleLoggedUser }, "Google Login successful")
+      new ApiResponse(
+        200,
+        { googleLoggedUser, accessToken, refreshToken },
+        "Google Login successful"
+      )
     );
 });
 
@@ -218,16 +227,16 @@ const logoutUser = asyncHandler(async (req, res) => {
     }
   );
 
-  const options = {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "Strict",
-  };
+  // const options = {
+  //   secure: process.env.NODE_ENV === "production",
+  //   httpOnly: true,
+  //   sameSite: "Strict",
+  // };
 
   res
     .status(200)
-    .clearCookie("accessToken", options)
-    .clearCookie("refreshToken", options)
+    // .clearCookie("accessToken", options)
+    // .clearCookie("refreshToken", options)
     .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 
