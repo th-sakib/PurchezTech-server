@@ -29,10 +29,10 @@ const createOrder = asyncHandler(async (req, res) => {
     total_amount: totalAmount,
     currency: "BDT",
     tran_id: tranID, // use unique tran_id for each api call
-    success_url: `http://localhost:5000/api/v1/shop/success/${tranID}`,
-    fail_url: `http://localhost:5000/api/v1/shop/fail/${tranID}`,
-    cancel_url: `http://localhost:5000/api/v1/shop/cancel/${tranID}`,
-    ipn_url: "http://localhost:5000/ipn",
+    success_url: `${process.env.CORS_ORIGIN}/api/v1/shop/success/${tranID}`,
+    fail_url: `${process.env.CORS_ORIGIN}/api/v1/shop/fail/${tranID}`,
+    cancel_url: `${process.env.CORS_ORIGIN}/api/v1/shop/cancel/${tranID}`,
+    ipn_url: `${process.env.CORS_ORIGIN}/ipn`,
     shipping_method: "Courier",
     product_name: "Computer.",
     product_category: "Electronic",
@@ -114,7 +114,7 @@ const successPayment = asyncHandler(async (req, res) => {
   await order.save();
   await Cart.deleteOne({ userId: order.user });
 
-  res.redirect("http://localhost:5173/payment/success");
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/success`);
 });
 
 const failPayment = asyncHandler(async (req, res) => {
@@ -122,7 +122,7 @@ const failPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect("http://localhost:5173/payment/fails");
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/fails`);
 });
 
 const cancelPayment = asyncHandler(async (req, res) => {
@@ -130,7 +130,7 @@ const cancelPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect("http://localhost:5173/payment/cancel");
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/cancel`);
 });
 
 const fetchOrder = asyncHandler(async (req, res) => {
