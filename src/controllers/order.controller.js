@@ -29,9 +29,9 @@ const createOrder = asyncHandler(async (req, res) => {
     total_amount: totalAmount,
     currency: "BDT",
     tran_id: tranID, // use unique tran_id for each api call
-    success_url: `${process.env.CORS_ORIGIN}/api/v1/shop/success/${tranID}`,
-    fail_url: `${process.env.CORS_ORIGIN}/api/v1/shop/fail/${tranID}`,
-    cancel_url: `${process.env.CORS_ORIGIN}/api/v1/shop/cancel/${tranID}`,
+    success_url: `${process.env.CORS_ORIGIN}/payment/success/${tranID}`,
+    fail_url: `${process.env.CORS_ORIGIN}/payment/fail/${tranID}`,
+    cancel_url: `${process.env.CORS_ORIGIN}/payment/cancel/${tranID}`,
     ipn_url: `${process.env.CORS_ORIGIN}/ipn`,
     shipping_method: "Courier",
     product_name: "Computer.",
