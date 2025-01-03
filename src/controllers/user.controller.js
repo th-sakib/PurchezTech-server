@@ -292,13 +292,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const getCurrentUser = asyncHandler(async (req, res) => {
-  const user = {
-    _id: req.user._id,
-    username: req.user.username,
-    email: req.user.email,
-    fullName: req.user.fullName,
-    role: req.user.role,
-  }; // req.user is coming from the auth middleware
+  const user = req.user; // req.user is coming from the auth middleware
 
   res
     .status(200)
@@ -307,6 +301,14 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword) {
+    throw new ApiError(400, "Old password is required");
+  }
+
+  if (!newPassword) {
+    throw new ApiError(400, "new password is required");
+  }
 
   const user = await User.findById(req.user?._id).select("-refreshToken");
 
@@ -327,10 +329,10 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 });
 
 const updateUserAccount = asyncHandler(async (req, res) => {
-  const { fullName, email } = req.body;
+  const { fullName } = req.body;
 
-  if (!fullName || !email) {
-    throw new ApiError(400, "All fields are required");
+  if (!fullName) {
+    throw new ApiError(400, "Fullname is required");
   }
 
   const user = await User.findByIdAndUpdate(
@@ -338,7 +340,6 @@ const updateUserAccount = asyncHandler(async (req, res) => {
     {
       $set: {
         fullName,
-        email,
       },
     },
     { new: true }
