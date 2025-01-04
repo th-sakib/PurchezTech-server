@@ -15,6 +15,12 @@ const googleClient = new OAuth2Client(
   "postmessage"
 );
 
+const options = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production", // Secure only in production
+  sameSite: "none", // CSRF protection
+};
+
 const generateAccessAndRefreshToken = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -123,12 +129,6 @@ const loginUser = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure only in production
-    sameSite: "Strict", // CSRF protection
-  };
-
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -190,12 +190,6 @@ const googleLogin = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Secure only in production
-    sameSite: "Strict", // CSRF protection
-  };
-
   res
     .status(200)
     .cookie("accessToken", accessToken, options)
@@ -217,12 +211,6 @@ const logoutUser = asyncHandler(async (req, res) => {
       new: true,
     }
   );
-
-  const options = {
-    secure: process.env.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "Strict",
-  };
 
   res
     .status(200)
@@ -268,12 +256,6 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user?._id);
-
-    const options = {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "Strict",
-    };
 
     res
       .status(200)
