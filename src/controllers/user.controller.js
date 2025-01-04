@@ -17,7 +17,7 @@ const googleClient = new OAuth2Client(
 
 const options = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production", // Secure only in production
+  secure: true, // Secure only in production
   sameSite: "none", // CSRF protection
 };
 
