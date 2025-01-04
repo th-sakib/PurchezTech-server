@@ -29,10 +29,10 @@ const createOrder = asyncHandler(async (req, res) => {
     total_amount: totalAmount,
     currency: "BDT",
     tran_id: tranID, // use unique tran_id for each api call
-    success_url: `http://localhost:5000/api/v1/shop/success/${tranID}`,
-    fail_url: `http://localhost:5000/api/v1/shop/fail/${tranID}`,
-    cancel_url: `http://localhost:5000/api/v1/shop/cancel/${tranID}`,
-    ipn_url: "http://localhost:5000/ipn",
+    success_url: `${process.env.SERVER_URL}/api/v1/shop/success/${tranID}`,
+    fail_url: `${process.env.SERVER_URL}/api/v1/shop/fail/${tranID}`,
+    cancel_url: `${process.env.SERVER_URL}/api/v1/shop/cancel/${tranID}`,
+    ipn_url: `${process.env.SERVER_URL}/ipn`,
     shipping_method: "Courier",
     product_name: "Computer.",
     product_category: "Electronic",
@@ -114,7 +114,7 @@ const successPayment = asyncHandler(async (req, res) => {
   await order.save();
   await Cart.deleteOne({ userId: order.user });
 
-  res.redirect("http://localhost:5173/payment/success");
+  res.redirect(`${process.env.CLIENT_URL}/payment/success`);
 });
 
 const failPayment = asyncHandler(async (req, res) => {
@@ -122,7 +122,7 @@ const failPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect("http://localhost:5173/payment/fails");
+  res.redirect(`${process.env.CLIENT_URL}/payment/fails`);
 });
 
 const cancelPayment = asyncHandler(async (req, res) => {
@@ -130,7 +130,7 @@ const cancelPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect("http://localhost:5173/payment/cancel");
+  res.redirect(`${process.env.CLIENT_URL}/payment/cancel`);
 });
 
 const fetchOrder = asyncHandler(async (req, res) => {
@@ -150,6 +150,7 @@ const fetchOrder = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { order }, "Order list successfully fetched"));
 });
 
+// admin only
 const fetchAllOrder = asyncHandler(async (req, res) => {
   const order = await Order.find();
   if (!order) {
@@ -162,13 +163,13 @@ const fetchAllOrder = asyncHandler(async (req, res) => {
 });
 
 const updateOrderStatus = asyncHandler(async (req, res) => {
-  const { userId, status } = req.body;
+  const { tranId, status } = req.body;
 
-  if (!userId) {
-    throw new ApiError(400, "userId is required");
+  if (!tranId) {
+    throw new ApiError(400, "tranId is required");
   }
 
-  const order = await Order.findOne({ user: userId });
+  const order = await Order.findOne({ "paymentDetails.tranID": tranId });
 
   order.orderStatus = status;
 
