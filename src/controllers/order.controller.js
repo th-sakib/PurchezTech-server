@@ -29,9 +29,9 @@ const createOrder = asyncHandler(async (req, res) => {
     total_amount: totalAmount,
     currency: "BDT",
     tran_id: tranID, // use unique tran_id for each api call
-    success_url: `${process.env.CORS_ORIGIN}/payment/success/${tranID}`,
-    fail_url: `${process.env.CORS_ORIGIN}/payment/fail/${tranID}`,
-    cancel_url: `${process.env.CORS_ORIGIN}/payment/cancel/${tranID}`,
+    success_url: `${process.env.CORS_ORIGIN}/payment/success/`,
+    fail_url: `${process.env.CORS_ORIGIN}/payment/fails/`,
+    cancel_url: `${process.env.CORS_ORIGIN}/payment/cancel/`,
     ipn_url: `${process.env.CORS_ORIGIN}/ipn`,
     shipping_method: "Courier",
     product_name: "Computer.",
@@ -100,7 +100,8 @@ const createOrder = asyncHandler(async (req, res) => {
 });
 
 const successPayment = asyncHandler(async (req, res) => {
-  const { tranId } = req.params;
+  const { tranId } = req.body;
+  console.log(tranId);
   const { card_brand, bank_tran_id, card_issuer, tran_date } = req.body;
 
   const order = await Order.findOne({ "paymentDetails.tranID": tranId });
@@ -114,7 +115,7 @@ const successPayment = asyncHandler(async (req, res) => {
   await order.save();
   await Cart.deleteOne({ userId: order.user });
 
-  res.redirect(`${process.env.CORS_ORIGIN}/payment/success`);
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/success/`);
 });
 
 const failPayment = asyncHandler(async (req, res) => {
@@ -122,7 +123,7 @@ const failPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect(`${process.env.CORS_ORIGIN}/payment/fails`);
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/fails/`);
 });
 
 const cancelPayment = asyncHandler(async (req, res) => {
@@ -130,7 +131,7 @@ const cancelPayment = asyncHandler(async (req, res) => {
 
   await Order.deleteOne({ "paymentDetails.tranID": tranId });
 
-  res.redirect(`${process.env.CORS_ORIGIN}/payment/cancel`);
+  res.redirect(`${process.env.CORS_ORIGIN}/payment/cancel/`);
 });
 
 const fetchOrder = asyncHandler(async (req, res) => {

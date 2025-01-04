@@ -278,16 +278,16 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const { accessToken, refreshToken: newRefreshToken } =
       await generateAccessAndRefreshToken(user?._id);
 
-    const options = {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "Strict",
-    };
+    // const options = {
+    //   secure: process.env.NODE_ENV === "production",
+    //   httpOnly: true,
+    //   sameSite: "Strict",
+    // };
 
     res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", newRefreshToken, options)
+      // .cookie("accessToken", accessToken, options)
+      // .cookie("refreshToken", newRefreshToken, options)
       .json(
         new ApiResponse(
           200,

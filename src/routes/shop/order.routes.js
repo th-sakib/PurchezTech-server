@@ -18,8 +18,8 @@ router.get("/fetch-all-order", fetchAllOrder);
 router.patch("/update-status", updateOrderStatus);
 
 // payment related routes
-router.post("/success/:tranId", successPayment);
-router.post("/fail/:tranId", failPayment);
-router.post("/cancel/:tranId", cancelPayment);
+router.post("/success", successPayment);
+router.post("/fail", failPayment);
+router.post("/cancel", cancelPayment);
 
 export default router;
