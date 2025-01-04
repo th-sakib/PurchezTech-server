@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { sslInit } from "../utils/sslCommerz.js";
 import Order from "../models/order.model.js";
+import Product from "../models/product.model.js";
 import Cart from "../models/cart.model.js";
 
 const createOrder = asyncHandler(async (req, res) => {
@@ -140,14 +141,72 @@ const fetchOrder = asyncHandler(async (req, res) => {
     throw new ApiError(400, "userId is required");
   }
 
-  const order = await Order.find({ user: userId });
+  const orders = await Order.find({ user: userId });
+  if (!orders) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  const userOrders = orders.filter(
+    (order) => order.orderStatus !== "Cancelled"
+  );
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { order: userOrders },
+        "Order list successfully fetched"
+      )
+    );
+});
+
+const cancelOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  if (!orderId) {
+    throw new ApiError(400, "orderId is required");
+  }
+
+  const order = await Order.findOne({ _id: orderId });
   if (!order) {
     throw new ApiError(404, "Order not found");
   }
 
+  // Update product status
+  order.orderStatus = "Cancelled";
+
+  await order.save();
+  return res
+    .status(200)
+    .json({ message: "Product canceled successfully.", order });
+});
+
+const fetchCancelledOrder = asyncHandler(async (req, res) => {
+  const { userId } = req.params;
+
+  if (!userId) {
+    throw new ApiError(400, "userId is required");
+  }
+
+  const orders = await Order.find({ user: userId });
+  if (!orders) {
+    throw new ApiError(404, "Order not found");
+  }
+
+  const userOrders = orders.filter(
+    (order) => order.orderStatus === "Cancelled"
+  );
+
   res
     .status(200)
-    .json(new ApiResponse(200, { order }, "Order list successfully fetched"));
+    .json(
+      new ApiResponse(
+        200,
+        { order: userOrders },
+        "Order list successfully fetched"
+      )
+    );
 });
 
 // admin only
@@ -192,4 +251,6 @@ export {
   fetchOrder,
   fetchAllOrder,
   updateOrderStatus,
+  cancelOrder,
+  fetchCancelledOrder,
 };
