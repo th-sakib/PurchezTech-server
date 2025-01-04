@@ -29,7 +29,7 @@ router.get("/authenticity", verifyJWT, authenticityCheck);
 router.post("/logout", verifyJWT, logoutUser);
 router.get("/current-user", verifyJWT, getCurrentUser);
 router.patch("/change-password", verifyJWT, changeCurrentPassword);
-router.put("/update-user-account", verifyJWT, updateUserAccount);
+router.patch("/update-user-account", verifyJWT, updateUserAccount);
 router.patch(
   "/upload-avatar",
   verifyJWT,
