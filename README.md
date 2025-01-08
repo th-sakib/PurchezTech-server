@@ -117,9 +117,11 @@ Key dependencies used in this project:
 
 ---
 
-## License
+## Useful Links
 
-This project is licensed under the MIT License.
+Live Link: [purchezTech](https://purcheztech.onrender.com)
+Client repo: [purchezTech-client](https://github.com/th-sakib/PurchezTech)
+server repo: [purchezTech-server](https://github.com/th-sakib/PurchezTech-server)
 
 ---
 
