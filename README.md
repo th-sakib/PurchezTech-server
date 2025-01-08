@@ -119,9 +119,11 @@ Key dependencies used in this project:
 
 ## Useful Links
 
-Live Link: [purchezTech](https://purcheztech.onrender.com)
-Client repo: [purchezTech-client](https://github.com/th-sakib/PurchezTech)
-server repo: [purchezTech-server](https://github.com/th-sakib/PurchezTech-server)
+- Live Link: [purchezTech](https://purcheztech.onrender.com)
+
+- Client repo: [purchezTech-client](https://github.com/th-sakib/PurchezTech)
+
+- server repo: [purchezTech-server](https://github.com/th-sakib/PurchezTech-server)
 
 ---
 
