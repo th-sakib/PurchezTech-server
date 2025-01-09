@@ -367,7 +367,7 @@ const uploadAvatar = asyncHandler(async (req, res) => {
   let user = await User.findById(userId);
 
   // delete from cloud if its stored in cloud already
-  if (user.avatarPublicId === null && publicId === "undefined") {
+  if (user.avatarPublicId === null && publicId === "null") {
     user.avatarPublicId = result.public_id;
     user.avatar = result.secure_url;
     await user.save();
