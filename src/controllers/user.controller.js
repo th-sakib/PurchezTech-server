@@ -280,6 +280,8 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     email: req.user.email,
     fullName: req.user.fullName,
     role: req.user.role,
+    avatar: req.user.avatar,
+    avatarPublicId: req.user.avatarPublicId,
   }; // req.user is coming from the auth middleware
 
   res
@@ -365,7 +367,7 @@ const uploadAvatar = asyncHandler(async (req, res) => {
   let user = await User.findById(userId);
 
   // delete from cloud if its stored in cloud already
-  if (user.avatarPublicId === null && publicId === "null") {
+  if (user.avatarPublicId === null && publicId === "undefined") {
     user.avatarPublicId = result.public_id;
     user.avatar = result.secure_url;
     await user.save();
