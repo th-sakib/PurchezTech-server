@@ -282,6 +282,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
     role: req.user.role,
     avatar: req.user.avatar,
     avatarPublicId: req.user.avatarPublicId,
+    createdAt: req.user.createdAt,
   }; // req.user is coming from the auth middleware
 
   res

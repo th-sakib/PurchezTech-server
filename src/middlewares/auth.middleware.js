@@ -20,7 +20,7 @@ const verifyJWT = async (req, _, next) => {
       return next(new ApiError(401, "invalid token structure"));
     }
 
-    // find the authorized user from docoded info
+    // find the authorized user from decoded info
     const user = await User.findById(decodedToken._id).select(
       "-password -refreshToken"
     );
