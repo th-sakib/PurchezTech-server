@@ -5,6 +5,7 @@ import { globalError, notFound } from "./middlewares/error.middleware.js";
 
 import {
   getAllProduct,
+  getPopularProduct,
   getProduct,
 } from "./controllers/admin/product.controller.js";
 
@@ -49,6 +50,7 @@ app.use("/api/v1/shop/", orderRouter);
 
 // for getting all product - logged out user
 app.use("/api/v1/get-products", getAllProduct);
+app.use("/api/v1/get-popular", getPopularProduct);
 app.use("/api/v1/get-product/:id", getProduct);
 
 // error handling middleware

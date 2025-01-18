@@ -1,3 +1,4 @@
+import Order from "../../models/order.model.js";
 import Product from "../../models/product.model.js";
 import { ApiError } from "../../utils/ApiError.js";
 import { ApiResponse } from "../../utils/ApiResponse.js";
@@ -178,6 +179,61 @@ const getAllProduct = asyncHandler(async (req, res) => {
     );
 });
 
+const getPopularProduct = asyncHandler(async (req, res) => {
+  const popularProducts = await Order.aggregate([
+    {
+      $unwind: "$orderItems",
+    },
+    {
+      $group: {
+        _id: "$orderItems.product",
+        totalProduct: {
+          $sum: "$orderItems.quantity",
+        },
+      },
+    },
+    {
+      $sort: { totalProduct: -1 },
+    },
+    {
+      $limit: 4,
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "productDetails",
+      },
+    },
+    {
+      $unwind: "$productDetails",
+    },
+    {
+      $project: {
+        _id: 1,
+        totalProduct: 1,
+        "productDetails.title": 1,
+        "productDetails.description": 1,
+        "productDetails.price": 1,
+        "productDetails.salePrice": 1,
+        "productDetails.totalStock": 1,
+        "productDetails.imageURL": 1,
+      },
+    },
+  ]);
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { popularProducts },
+        "Successfully fetched popular products"
+      )
+    );
+});
+
 // get product by id
 const getProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -244,4 +300,5 @@ export {
   updateProduct,
   deleteProduct,
   deleteCloudProduct,
+  getPopularProduct,
 };
