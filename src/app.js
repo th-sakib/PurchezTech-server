@@ -36,6 +36,7 @@ import orderRouter from "./routes/shop/order.routes.js";
 
 // import admin routes
 import productRouter from "./routes/admin/product.routes.js";
+import CouponRouter from "./routes/coupon.routes.js";
 
 // routes;
 app.use("/api/v1/user", userRouter);
@@ -47,6 +48,9 @@ app.use("/api/v1/admin/", productRouter);
 app.use("/api/v1/shop/", cartRouter);
 app.use("/api/v1/shop/", wishlistRouter);
 app.use("/api/v1/shop/", orderRouter);
+
+// coupons
+app.use("/api/v1/coupon/", CouponRouter);
 
 // for getting all product - logged out user
 app.use("/api/v1/get-products", getAllProduct);
