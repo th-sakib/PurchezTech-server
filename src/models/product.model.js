@@ -17,6 +17,7 @@ const productSchema = new Schema(
       required: [true, "Category is required"],
       trim: true,
       lowercase: true,
+      index: true,
     },
     brand: {
       type: String,
