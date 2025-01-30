@@ -2,10 +2,12 @@ import { Router } from "express";
 import {
   authenticityCheck,
   changeCurrentPassword,
+  getAllUsers,
   getCurrentUser,
   googleLogin,
   loginUser,
   logoutUser,
+  makeAdmin,
   refreshAccessToken,
   registerUser,
   updateUserAccount,
@@ -15,6 +17,7 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 import validate from "../middlewares/validate.middleware.js";
 import { registerSchema, loginSchema } from "../validators/auth.validator.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import isAdmin from "../middlewares/admin.middleware.js";
 
 const router = Router();
 
@@ -28,6 +31,7 @@ router.post("/refresh-token", refreshAccessToken);
 router.get("/authenticity", verifyJWT, authenticityCheck);
 router.post("/logout", verifyJWT, logoutUser);
 router.get("/current-user", verifyJWT, getCurrentUser);
+router.get("/all-user", verifyJWT, getAllUsers);
 router.patch("/change-password", verifyJWT, changeCurrentPassword);
 router.patch("/update-user-account", verifyJWT, updateUserAccount);
 router.patch(
@@ -36,5 +40,6 @@ router.patch(
   upload.single("avatar"),
   uploadAvatar
 );
+router.patch("/make-admin", verifyJWT, isAdmin, makeAdmin);
 
 export default router;

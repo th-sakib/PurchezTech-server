@@ -6,6 +6,7 @@ const orderSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+      index: true,
     },
     orderItems: [
       {
@@ -13,6 +14,7 @@ const orderSchema = new Schema(
           type: Schema.Types.ObjectId,
           ref: "Product",
           required: true,
+          index: true,
         },
         name: { type: String, required: true },
         quantity: { type: Number, required: true },
@@ -35,6 +37,7 @@ const orderSchema = new Schema(
         type: String,
         enum: ["pending", "paid"],
         default: "pending",
+        index: true,
       },
       cardBrand: { type: String, required: true, default: "pending" },
       cardIssuer: { type: String, default: null },
@@ -43,8 +46,9 @@ const orderSchema = new Schema(
     totalPrice: { type: Number, required: true },
     orderStatus: {
       type: String,
-      enum: ["Processing", "Shipped", "Delivered", "Cancelled"],
+      enum: ["Processing", "Shipped", "Delivered", "Cancelled", "Completed"],
       default: "Processing",
+      index: true,
     },
   },
   { timestamps: true }

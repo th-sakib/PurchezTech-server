@@ -392,6 +392,44 @@ const uploadAvatar = asyncHandler(async (req, res) => {
     );
 });
 
+const makeAdmin = asyncHandler(async (req, res) => {
+  const { userId } = req.body;
+  if (!userId) {
+    throw new ApiError(400, "userId is requied");
+  }
+
+  const user = await User.findOne({ _id: userId });
+  if (!user) {
+    throw new ApiError(400, "userId is wrong");
+  }
+
+  if (user.role === "admin") {
+    throw new ApiError(400, "Admin role can't be changed");
+  }
+
+  user.role = "admin";
+
+  await user.save();
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { username: user.username, role: user.role },
+        "User role updated successfully"
+      )
+    );
+});
+
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, users, "All users fetched successfully"));
+});
+
 export {
   registerUser,
   loginUser,
@@ -403,4 +441,6 @@ export {
   updateUserAccount,
   uploadAvatar,
   authenticityCheck,
+  getAllUsers,
+  makeAdmin,
 };

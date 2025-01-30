@@ -37,12 +37,14 @@ import orderRouter from "./routes/shop/order.routes.js";
 // import admin routes
 import productRouter from "./routes/admin/product.routes.js";
 import CouponRouter from "./routes/coupon.routes.js";
+import dashboardRouter from "./routes/admin/dashboard.routes.js";
 
 // routes;
 app.use("/api/v1/user", userRouter);
 
 // admin routes
 app.use("/api/v1/admin/", productRouter);
+app.use("/api/v1/admin/", dashboardRouter);
 
 // shop related routes
 app.use("/api/v1/shop/", cartRouter);

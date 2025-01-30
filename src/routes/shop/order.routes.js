@@ -6,6 +6,7 @@ import {
   failPayment,
   fetchAllOrder,
   fetchCancelledOrder,
+  fetchIndividualOrder,
   fetchOrder,
   successPayment,
   updateOrderStatus,
@@ -16,6 +17,7 @@ const router = Router();
 router.post("/create-order", createOrder);
 
 router.get("/fetch-order/:userId", fetchOrder);
+router.get("/fetch-individual-order/:orderId", fetchIndividualOrder);
 router.get("/fetch-cancelled/:userId", fetchCancelledOrder);
 router.get("/fetch-all-order", fetchAllOrder);
 router.patch("/update-status", updateOrderStatus);

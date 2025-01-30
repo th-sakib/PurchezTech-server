@@ -161,6 +161,22 @@ const fetchOrder = asyncHandler(async (req, res) => {
     );
 });
 
+const fetchIndividualOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+
+  if (!orderId) {
+    throw new ApiError(400, "Id is required.");
+  }
+
+  const orderItem = await Order.findOne({ _id: orderId });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, orderItem, "Successfully fetched individual product")
+    );
+});
+
 const cancelOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
 
@@ -250,6 +266,7 @@ export {
   cancelPayment,
   fetchOrder,
   fetchAllOrder,
+  fetchIndividualOrder,
   updateOrderStatus,
   cancelOrder,
   fetchCancelledOrder,

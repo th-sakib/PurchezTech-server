@@ -24,6 +24,7 @@ const productSchema = new Schema(
       required: [true, "Brand is required"],
       trim: true,
       lowercase: true,
+      index: true,
     },
     price: {
       type: Number,
@@ -33,6 +34,7 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
       required: [false, "Sale price is required"],
+      index: true,
     },
     totalStock: {
       type: Number,

@@ -115,8 +115,11 @@ const getAllProduct = asyncHandler(async (req, res) => {
   } = req.query;
 
   // filtering by category | brand
+
   const query = {};
-  if (category && category !== "default") query.category = category;
+  if (category && category !== "default") {
+    query.category = category;
+  }
   if (brand && category !== "default") query.brand = brand;
   if (search) {
     query.$or = [
@@ -124,7 +127,6 @@ const getAllProduct = asyncHandler(async (req, res) => {
       { description: { $regex: search, $options: "i" } },
     ];
   }
-
   // filter by price range
   if (minPrice)
     query.salePrice = { ...query.salePrice, $gte: Number(minPrice) };
@@ -182,18 +184,24 @@ const getAllProduct = asyncHandler(async (req, res) => {
 const getPopularProduct = asyncHandler(async (req, res) => {
   const popularProducts = await Order.aggregate([
     {
+      $match: {
+        orderStatus: { $nin: ["Cancelled"] },
+        "paymentDetails.status": "paid",
+      },
+    },
+    {
       $unwind: "$orderItems",
     },
     {
       $group: {
         _id: "$orderItems.product",
-        totalProduct: {
+        totalSold: {
           $sum: "$orderItems.quantity",
         },
       },
     },
     {
-      $sort: { totalProduct: -1 },
+      $sort: { totalSold: -1 },
     },
     {
       $limit: 4,
@@ -212,7 +220,7 @@ const getPopularProduct = asyncHandler(async (req, res) => {
     {
       $project: {
         _id: 1,
-        totalProduct: 1,
+        totalSold: 1,
         "productDetails.title": 1,
         "productDetails.description": 1,
         "productDetails.price": 1,
