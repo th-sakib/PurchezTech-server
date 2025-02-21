@@ -204,7 +204,7 @@ const getPopularProduct = asyncHandler(async (req, res) => {
       $sort: { totalSold: -1 },
     },
     {
-      $limit: 4,
+      $limit: 5,
     },
     {
       $lookup: {
