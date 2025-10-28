@@ -10,6 +10,7 @@ import {
 } from "./controllers/admin/product.controller.js";
 
 const app = express();
+app.disable("x-powered-by");
 
 app.use(
   cors({
